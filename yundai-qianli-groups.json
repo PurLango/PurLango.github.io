@@ -1,0 +1,82 @@
+{
+  "groups": [
+    {
+      "id": "yundai-qianli-apex",
+      "name": "云带千里马Pro",
+      "shortName": "APEX",
+      "gameType": "射击类",
+      "qqNumber": "373496604",
+      "avatar": "./assets/images/apex-avatar.jpg",
+      "createdAt": "2022-10-15",
+      "owner": "漫宅不断旋转",
+      "description": "云南大学APEX英雄交流群，千里系起源地，叫Pro是因为初代群已死秽土转生而来",
+      "joinLink": "",
+      "tags": ["APEX", "FPS", "大逃杀", "射击", "开黑"]
+    },
+    {
+      "id": "yundai-qianli-gal",
+      "name": "云带千里galPro",
+      "shortName": "gal",
+      "gameType": "Galgame",
+      "qqNumber": "110280848",
+      "avatar": "./assets/images/gal-avatar.jpg",
+      "createdAt": "2023-04-23",
+      "owner": "鬼头人",
+      "description": "云南大学Galgame交流群，严进宽出，需审核才能加入，千里系最早的分群之一",
+      "joinLink": "",
+      "tags": ["Galgame", "视觉小说" , "二次元"]
+    },
+    {
+      "id": "yundai-qianli-wa",
+      "name": "云带千里瓦",
+      "shortName": "瓦",
+      "gameType": "射击类",
+      "qqNumber": "875581302",
+      "avatar": "./assets/images/valorant-avatar.jpg",
+      "createdAt": "2023-07-06",
+      "owner": "武斗酷猫",
+      "description": "云南大学无畏契约交流群，目前最活跃的千里系群聊，只是好像都没有在聊瓦",
+      "joinLink": "",
+      "tags": ["无畏契约", "Valorant", "FPS",  "开黑", "日常交流"]
+    },
+    {
+      "id": "yundai-qianli-lol",
+      "name": "云带千里撸",
+      "shortName": "撸",
+      "gameType": "MOBA",
+      "qqNumber": "902794363",
+      "avatar": "./assets/images/lol-avatar.jpg",
+      "createdAt": "2023-07-25",
+      "owner": "PurLango",
+      "description": "云南大学英雄联盟交流群，聊天风格和游戏玩家风格如出一辙",
+      "joinLink": "",
+      "tags": ["英雄联盟", "LOL", "MOBA", "开黑", "竞技"]
+    },
+    {
+      "id": "yundai-qianli-yunchan",
+      "name": "云带千里云铲",
+      "shortName": "云铲",
+      "gameType": "自走棋",
+      "qqNumber": "907304543",
+      "avatar": "./assets/images/tft-avatar.jpg",
+      "createdAt": "2023-09-06",
+      "owner": "PurLango",
+      "description": "云南大学云顶之弈/金铲铲之战交流群,已转生两次，其实是最早的千里系分群之一",
+      "joinLink": "",
+      "tags": ["金铲铲", "云顶之弈", "自走棋", "策略"]
+    },
+    {
+      "id": "yundai-qianli-delta",
+      "name": "云带千里△",
+      "shortName": "三角洲",
+      "gameType": "射击类",
+      "qqNumber": "118433229",
+      "avatar": "./assets/images/delta-avatar.jpg",
+      "createdAt": "2024-10-18",
+      "owner": "萤火突击牛逼",
+      "description": "云南大学三角洲友好交流群，大伙可以一起组排猛攻，跑刀，做任务，分享相关内容",
+      "joinLink": "",
+      "tags": ["三角洲", "FPS", "射击", "竞技"]
+    }
+  ]
+}
