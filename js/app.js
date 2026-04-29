@@ -63,7 +63,6 @@ function createGroupCard(group, index) {
                 </div>
                 <p class="card-desc">${group.description}</p>
                 <div class="card-meta">
-                    ${canJoin ? `<span class="card-qq">QQ: ${group.qqNumber}</span>` : '<span></span>'}
                     <div class="card-tags">${tagsHtml}</div>
                 </div>
                 ${actionsHtml}
