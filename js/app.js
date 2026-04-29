@@ -1,7 +1,7 @@
 let groupsData = [];
 let currentFilter = 'all';
 let previousPage = 'home';
-const AVATAR_CACHE_VERSION = '20260410-4';
+const AVATAR_CACHE_VERSION = '20260429-1';
 
 function getAvatarUrl(path) {
     if (!path) return '';
@@ -56,7 +56,6 @@ function createGroupCard(group) {
                 <p class="card-description">${group.description}</p>
                 <div class="card-footer">
                     ${canJoin ? `<div class="qq-number">
-                    <span>👥</span>
                     <span>QQ: ${group.qqNumber}</span>
                 </div>` : ''}
                     <div class="tags">${tagsHtml}</div>
@@ -74,6 +73,7 @@ function renderGroups(groups) {
         return;
     }
     grid.innerHTML = groups.map(createGroupCard).join('');
+    initScrollAnimations();
 }
 
 function getGroupYear(group) {
@@ -99,7 +99,6 @@ function filterGroups(filterType) {
 
     renderGroups(filtered);
 
-    // 年鉴页面始终显示所有群聊，不受过滤影响
     if (document.getElementById('timeline-content')) {
         renderTimeline(groupsData.groups);
     }
@@ -142,7 +141,7 @@ function renderTimeline(groups) {
             <div class="timeline-item" onclick="showDetail('${group.id}')">
                 <div class="timeline-dot"></div>
                 <div class="timeline-card">
-                    <div class="timeline-date">📅 ${formatDate(group.createdAt)}</div>
+                    <div class="timeline-date">${formatDate(group.createdAt)}</div>
                     <div class="timeline-card-header">
                         <div class="timeline-avatar">
                             <img src="${avatarUrl}" alt="${group.name}" class="avatar-img" />
@@ -196,34 +195,33 @@ function showDetail(groupId) {
         </div>
         <div class="detail-info">
             <div class="info-row">
-                <span class="info-label">👥 QQ群号</span>
+                <span class="info-label">QQ群号</span>
                 <span class="info-value">${qqDisplay}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">👑 群主</span>
+                <span class="info-label">群主</span>
                 <span class="info-value">${group.owner}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">📅 建群时间</span>
+                <span class="info-label">建群时间</span>
                 <span class="info-value">${group.createdAt}</span>
             </div>
             <div class="info-row">
-                <span class="info-label">🏷️ 标签</span>
+                <span class="info-label">标签</span>
                 <div class="tags">${group.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
             </div>
         </div>
         <div class="detail-description">
-            <strong>📝 群简介</strong><br><br>
+            <strong>群简介</strong><br><br>
             ${group.description}
         </div>
         ${isHidden ? '' : `<a href="https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=${group.qqNumber}&group_code=${group.qqNumber}" target="_blank" class="join-btn">
-            🚀 点击加入QQ群
+            点击加入QQ群
         </a>`}
     `;
 
     showPage('detail');
 
-    // 初始化评论组件
     if (window.CommentsComponent) {
         CommentsComponent.init(groupId);
     }
@@ -240,18 +238,6 @@ function copyGroupQQ(event, text, element) {
     });
 }
 
-function copyToClipboard(text, element) {
-    navigator.clipboard.writeText(text).then(() => {
-        const originalText = element.textContent;
-        element.textContent = '已复制 ✓';
-        element.style.background = 'rgba(0, 206, 201, 0.3)';
-        setTimeout(() => {
-            element.textContent = originalText;
-            element.style.background = '';
-        }, 1500);
-    });
-}
-
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
@@ -264,13 +250,17 @@ function showPage(pageId) {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    if (pageId === 'home' || pageId === 'about' || pageId === 'timeline') {
-        document.querySelector('.nav-links').classList.remove('show');
-    }
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuBtn = document.querySelector('.menu-btn');
+    if (mobileMenu) mobileMenu.classList.remove('open');
+    if (menuBtn) menuBtn.classList.remove('active');
 }
 
 function toggleMenu() {
-    document.querySelector('.nav-links').classList.toggle('show');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const menuBtn = document.querySelector('.menu-btn');
+    if (mobileMenu) mobileMenu.classList.toggle('open');
+    if (menuBtn) menuBtn.classList.toggle('active');
 }
 
 function dismissSplash() {
@@ -284,6 +274,22 @@ function dismissSplash() {
     }, 800);
 }
 
+function initScrollAnimations() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.scroll-entry').forEach(el => {
+        el.classList.remove('visible');
+        observer.observe(el);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     loadGroupsData();
 
@@ -291,4 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (splashScreen) {
         splashScreen.addEventListener('click', dismissSplash);
     }
+
+    initScrollAnimations();
 });
