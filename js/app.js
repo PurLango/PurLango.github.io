@@ -1,11 +1,17 @@
 let groupsData = [];
 let currentFilter = 'all';
 let previousPage = 'home';
-const AVATAR_CACHE_VERSION = '20260429-1';
+const AVATAR_CACHE_VERSION = '20260429-5';
+const LARGE_CARD_INDICES = new Set([]);
+const TAG_COLORS = ['tag-cyan', 'tag-orange', 'tag-violet', 'tag-red'];
 
 function getAvatarUrl(path) {
     if (!path) return '';
     return path.includes('?') ? path : `${path}?v=${AVATAR_CACHE_VERSION}`;
+}
+
+function getTagColor(index) {
+    return TAG_COLORS[index % TAG_COLORS.length];
 }
 
 async function loadGroupsData() {
@@ -14,51 +20,51 @@ async function loadGroupsData() {
         groupsData = await response.json();
         renderGroups(groupsData.groups);
         renderTimeline(groupsData.groups);
+        animateHeroCounters();
     } catch (error) {
         console.error('Failed to load data:', error);
         document.getElementById('groups-grid').innerHTML =
-            '<p style="text-align:center;color:var(--text-secondary);grid-column:1/-1;padding:40px;">数据加载失败，请检查JSON文件</p>';
+            '<p style="text-align:center;color:var(--text-2);grid-column:1/-1;padding:40px;">数据加载失败，请检查JSON文件</p>';
     }
 }
 
-function createGroupCard(group) {
+function createGroupCard(group, index) {
     const avatarUrl = getAvatarUrl(group.avatar);
-    const tagsHtml = group.tags.slice(0, 3).map(tag =>
-        `<span class="tag">${tag}</span>`
-    ).join('');
     const isDead = group.status === 'dead';
     const isPrivate = group.status === 'private';
     const canJoin = !(isDead || isPrivate);
+
+    const tagsHtml = group.tags.slice(0, 3).map((tag, i) =>
+        `<span class="tag ${getTagColor(i)}">${tag}</span>`
+    ).join('');
+
     const joinBtn = canJoin
-        ? `<a class="action-btn join" href="https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=${group.qqNumber}&group_code=${group.qqNumber}" target="_blank" onclick="event.stopPropagation()">打开QQ</a>`
-        : `<button class="action-btn disabled" type="button" onclick="event.stopPropagation()">private</button>`;
+        ? `<a class="act-btn join" href="https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=${group.qqNumber}&group_code=${group.qqNumber}" target="_blank" onclick="event.stopPropagation()">打开QQ</a>`
+        : `<button class="act-btn locked" type="button" onclick="event.stopPropagation()">未公开</button>`;
+
     const actionsHtml = !canJoin
         ? `<div class="card-actions single">${joinBtn}</div>`
         : `<div class="card-actions">
-                    <button class="action-btn copy" type="button" onclick="copyGroupQQ(event, '${group.qqNumber}', this)">
-                        一键复制群号
-                    </button>
-                    ${joinBtn}
-                </div>`;
+                <button class="act-btn copy" type="button" onclick="copyGroupQQ(event, '${group.qqNumber}', this)">复制群号</button>
+                ${joinBtn}
+            </div>`;
 
     return `
-        <div class="group-card" onclick="showDetail('${group.id}')">
+        <div class="group-card" onclick="showDetail('${group.id}')" style="animation-delay: ${index * 60}ms">
             <div class="card-cover">
                 <img src="${avatarUrl}" alt="${group.name}" class="avatar-img" />
-                <div class="cover-overlay"></div>
-                <span class="card-badge">${group.gameType}</span>
+                <div class="cover-fade"></div>
+                <span class="card-type-badge">${group.gameType}</span>
             </div>
             <div class="card-body">
-                <div class="card-top">
-                    <h3 class="card-title">${group.name}</h3>
-                    <span class="card-short">${group.shortName}</span>
+                <div class="card-head">
+                    <span class="card-name">${group.name}</span>
+                    <span class="card-abbr">${group.shortName}</span>
                 </div>
-                <p class="card-description">${group.description}</p>
-                <div class="card-footer">
-                    ${canJoin ? `<div class="qq-number">
-                    <span>QQ: ${group.qqNumber}</span>
-                </div>` : ''}
-                    <div class="tags">${tagsHtml}</div>
+                <p class="card-desc">${group.description}</p>
+                <div class="card-meta">
+                    ${canJoin ? `<span class="card-qq">QQ: ${group.qqNumber}</span>` : '<span></span>'}
+                    <div class="card-tags">${tagsHtml}</div>
                 </div>
                 ${actionsHtml}
             </div>
@@ -68,11 +74,15 @@ function createGroupCard(group) {
 
 function renderGroups(groups) {
     const grid = document.getElementById('groups-grid');
+    const countEl = document.getElementById('group-count');
+
+    if (countEl) countEl.textContent = `${groups.length} 个群聊`;
+
     if (groups.length === 0) {
-        grid.innerHTML = '<p style="text-align:center;color:var(--text-secondary);grid-column:1/-1;padding:40px;">暂无匹配的群聊</p>';
+        grid.innerHTML = '<p style="text-align:center;color:var(--text-2);grid-column:1/-1;padding:40px;">暂无匹配的群聊</p>';
         return;
     }
-    grid.innerHTML = groups.map(createGroupCard).join('');
+    grid.innerHTML = groups.map((g, i) => createGroupCard(g, i)).join('');
     initScrollAnimations();
 }
 
@@ -85,7 +95,7 @@ function getGroupYear(group) {
 function filterGroups(filterType) {
     currentFilter = filterType;
 
-    document.querySelectorAll('.filter-btn').forEach(btn => {
+    document.querySelectorAll('.filter-chip').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.filter === filterType);
     });
 
@@ -98,10 +108,6 @@ function filterGroups(filterType) {
         });
 
     renderGroups(filtered);
-
-    if (document.getElementById('timeline-content')) {
-        renderTimeline(groupsData.groups);
-    }
 }
 
 function formatDate(dateStr) {
@@ -119,40 +125,48 @@ function renderTimeline(groups) {
     const sorted = [...groups].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
     if (sorted.length === 0) {
-        container.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:40px;">暂无群聊数据</p>';
+        container.innerHTML = '<p style="text-align:center;color:var(--text-2);padding:40px;">暂无群聊数据</p>';
         return;
     }
 
     let previousYear = '';
+    let sideIndex = 0;
     container.innerHTML = sorted.map((group) => {
         const avatarUrl = getAvatarUrl(group.avatar);
         const year = getGroupYear(group);
         const isDead = group.status === 'dead';
         const isPrivate = group.status === 'private';
+        const isHidden = isDead || isPrivate;
+
         const yearDivider = previousYear === year ? '' : `
-            <div class="timeline-year-divider">
-                <span class="timeline-year-label">${year}</span>
+            <div class="tl-year-marker">
+                <span class="tl-year-badge">${year}</span>
             </div>
         `;
         previousYear = year;
 
+        const side = sideIndex % 2 === 0 ? 'tl-left' : 'tl-right';
+        sideIndex++;
+
         return `
             ${yearDivider}
-            <div class="timeline-item" onclick="showDetail('${group.id}')">
-                <div class="timeline-dot"></div>
-                <div class="timeline-card">
-                    <div class="timeline-date">${formatDate(group.createdAt)}</div>
-                    <div class="timeline-card-header">
-                        <div class="timeline-avatar">
+            <div class="tl-item ${side}" onclick="showDetail('${group.id}')">
+                <div class="tl-content">
+                    <div class="tl-date">${formatDate(group.createdAt)}</div>
+                    <div class="tl-head">
+                        <div class="tl-avatar">
                             <img src="${avatarUrl}" alt="${group.name}" class="avatar-img" />
                         </div>
                         <div>
-                            <div class="timeline-card-title">${group.name}</div>
-                            <div class="timeline-card-meta">${group.gameType} · 群主: ${group.owner}${isDead || isPrivate ? '' : ` · QQ: ${group.qqNumber}`}</div>
+                            <div class="tl-name">${group.name}</div>
+                            <div class="tl-meta">${group.gameType} · 群主: ${group.owner}${isHidden ? '' : ` · QQ: ${group.qqNumber}`}</div>
                         </div>
                     </div>
-                    <p class="timeline-card-desc">${group.description}</p>
-                    <span class="timeline-arrow">→</span>
+                    <p class="tl-desc">${group.description}</p>
+                    <span class="tl-arrow">→</span>
+                </div>
+                <div class="tl-dot-wrap">
+                    <div class="tl-dot"></div>
                 </div>
             </div>
         `;
@@ -162,7 +176,7 @@ function renderTimeline(groups) {
 function showDetail(groupId) {
     const group = groupsData.groups.find(g => g.id === groupId);
     if (!group) return;
-    
+
     const activePage = document.querySelector('.page.active');
     if (activePage) {
         previousPage = activePage.id.replace('page-', '');
@@ -172,52 +186,50 @@ function showDetail(groupId) {
     const isDead = group.status === 'dead';
     const isPrivate = group.status === 'private';
     const isHidden = isDead || isPrivate;
+    let qqDisplay = isHidden ? '非公开' : group.qqNumber;
 
-    let qqDisplay = group.qqNumber;
-    if (isHidden) qqDisplay = '非公开';
+    const tagsHtml = group.tags.map((t, i) =>
+        `<span class="tag ${getTagColor(i)}">${t}</span>`
+    ).join('');
 
     const detailContent = document.getElementById('detail-content');
     detailContent.innerHTML = `
-        <div class="detail-hero">
-            <div class="detail-cover">
-                <img src="${avatarUrl}" alt="${group.name}" class="avatar-img" />
-                <div class="cover-overlay"></div>
-            </div>
-            <div class="detail-header">
-                <div class="detail-avatar">
-                    <img src="${avatarUrl}" alt="${group.name}" class="avatar-img" />
+        <div class="detail-visual">
+            <img src="${avatarUrl}" alt="${group.name}" class="avatar-img" />
+            <div class="detail-visual-fade"></div>
+            <span class="detail-type-badge">${group.gameType}</span>
+        </div>
+        <div class="detail-info-side">
+            <h2 class="detail-name">${group.name}</h2>
+            <span class="detail-abbr">${group.shortName}</span>
+            <div class="detail-rows">
+                <div class="detail-row">
+                    <span class="detail-row-label">QQ群号</span>
+                    <span class="detail-row-value">${qqDisplay}</span>
                 </div>
-                <div>
-                    <h2 class="detail-name">${group.name}</h2>
-                    <span class="detail-short-name">${group.shortName} · ${group.gameType}</span>
+                <div class="detail-row">
+                    <span class="detail-row-label">群主</span>
+                    <span class="detail-row-value">${group.owner}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">建群时间</span>
+                    <span class="detail-row-value">${group.createdAt}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-row-label">标签</span>
+                    <div class="card-tags">${tagsHtml}</div>
                 </div>
             </div>
+            <div class="detail-desc-block">
+                <div class="detail-desc-label">群简介</div>
+                <p class="detail-desc-text">${group.description}</p>
+            </div>
+            ${isHidden ? '' : `<div class="detail-join-area">
+                <a href="https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=${group.qqNumber}&group_code=${group.qqNumber}" target="_blank" class="detail-join-btn">
+                    加入QQ群
+                </a>
+            </div>`}
         </div>
-        <div class="detail-info">
-            <div class="info-row">
-                <span class="info-label">QQ群号</span>
-                <span class="info-value">${qqDisplay}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">群主</span>
-                <span class="info-value">${group.owner}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">建群时间</span>
-                <span class="info-value">${group.createdAt}</span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">标签</span>
-                <div class="tags">${group.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
-            </div>
-        </div>
-        <div class="detail-description">
-            <strong>群简介</strong><br><br>
-            ${group.description}
-        </div>
-        ${isHidden ? '' : `<a href="https://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=${group.qqNumber}&group_code=${group.qqNumber}" target="_blank" class="join-btn">
-            点击加入QQ群
-        </a>`}
     `;
 
     showPage('detail');
@@ -232,20 +244,22 @@ function copyGroupQQ(event, text, element) {
     navigator.clipboard.writeText(text).then(() => {
         const originalText = element.textContent;
         element.textContent = '已复制';
+        element.style.color = 'var(--green)';
         setTimeout(() => {
             element.textContent = originalText;
+            element.style.color = '';
         }, 1200);
     });
 }
 
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(a => a.classList.remove('active'));
 
     const targetPage = document.getElementById(`page-${pageId}`);
     if (targetPage) targetPage.classList.add('active');
 
-    const navLink = document.querySelector(`.nav-links a[data-page="${pageId}"]`);
+    const navLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
     if (navLink) navLink.classList.add('active');
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -266,12 +280,8 @@ function toggleMenu() {
 function dismissSplash() {
     const splashScreen = document.getElementById('splash-screen');
     if (!splashScreen || splashScreen.classList.contains('hidden')) return;
-
     splashScreen.classList.add('hidden');
-
-    setTimeout(() => {
-        splashScreen.style.display = 'none';
-    }, 800);
+    setTimeout(() => { splashScreen.style.display = 'none'; }, 800);
 }
 
 function initScrollAnimations() {
@@ -287,6 +297,32 @@ function initScrollAnimations() {
     document.querySelectorAll('.scroll-entry').forEach(el => {
         el.classList.remove('visible');
         observer.observe(el);
+    });
+}
+
+function animateHeroCounters() {
+    document.querySelectorAll('.hero-stat-num[data-count]').forEach(el => {
+        const target = parseInt(el.dataset.count, 10);
+        if (isNaN(target)) return;
+
+        const duration = 1200;
+        const start = performance.now();
+
+        function step(now) {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = Math.round(eased * target);
+
+            el.textContent = target > 100 ? current : current;
+
+            if (progress < 1) {
+                requestAnimationFrame(step);
+            } else {
+                el.textContent = target;
+            }
+        }
+        requestAnimationFrame(step);
     });
 }
 
