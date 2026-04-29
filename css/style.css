@@ -344,7 +344,7 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-stat-card:hover::before { opacity: 1; }
 .hero-stat-card.accent { border-color: rgba(232,148,58,0.2); }
-.hero-stat-card.accent::before { opacity: 1; }
+.hero-stat-card.accent:hover::before { opacity: 1; }
 .hero-stat-num {
   font-size: 2rem;
   font-weight: 800;
