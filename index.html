@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云大千里系 | YDQLX.TOP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css?v=20260421-1">
+</head>
+<body>
+    <div id="splash-screen" class="splash-screen" onclick="dismissSplash()">
+        <div class="splash-aurora"></div>
+        <div class="splash-content">
+            <p class="splash-kicker">YDQLX.TOP</p>
+            <h1 class="splash-title">云大千里系</h1>
+            <p class="splash-subtitle">赛博永生中</p>
+            <div class="splash-hint">
+                <span class="pulse-dot"></span>
+                点击屏幕任意位置进入
+            </div>
+        </div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo" onclick="showPage('home')">
+                <span class="logo-main">YDQLX.TOP</span>
+                <span class="logo-sub">云大千里系</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#" class="active" data-page="home" onclick="showPage('home')">主页</a></li>
+                <li><a href="#" data-page="timeline" onclick="showPage('timeline')">年鉴</a></li>
+                <li><a href="#" data-page="about" onclick="showPage('about')">关于</a></li>
+            </ul>
+            <div class="nav-actions">
+                <div class="hamburger" onclick="toggleMenu()">
+                    <span></span><span></span><span></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <section id="page-home" class="page active">
+            <div class="container">
+                <header class="hero-shell">
+                    <div class="hero-content">
+                        <p class="eyebrow">Neon Community Matrix</p>
+                        <h1 class="hero-title">云大千里系</h1>
+                        <p class="hero-subtitle">云带最大的游戏矩阵群</p>
+                        <div class="hero-meta">
+                            <span>Established 2022</span>
+                        </div>
+                    </div>
+                </header>
+
+                <section class="filter-panel">
+                    <div class="filter-headline">Filter By</div>
+                    <div class="filter-bar">
+                        <button class="filter-btn active" data-filter="all" onclick="filterGroups('all')">
+                            全部
+                        </button>
+                        <button class="filter-btn" data-filter="射击类" onclick="filterGroups('射击类')">
+                            射击类
+                        </button>
+                        <button class="filter-btn" data-filter="MOBA" onclick="filterGroups('MOBA')">
+                            MOBA
+                        </button>
+                        <button class="filter-btn" data-filter="Galgame" onclick="filterGroups('Galgame')">
+                            Galgame
+                        </button>
+                        <button class="filter-btn" data-filter="自走棋" onclick="filterGroups('自走棋')">
+                            自走棋
+                        </button>
+                        <button class="filter-btn" data-filter="其他" onclick="filterGroups('其他')">
+                            其他
+                        </button>
+                    </div>
+                </section>
+
+                <div id="groups-grid" class="groups-grid"></div>
+            </div>
+        </section>
+
+        <section id="page-detail" class="page">
+            <div class="container">
+                <button class="back-btn" onclick="showPage(previousPage)">← 返回</button>
+                <div id="detail-content" class="detail-card"></div>
+                <div id="comments-section"></div>
+            </div>
+        </section>
+
+        <section id="page-timeline" class="page">
+            <div class="timeline-container">
+                <h2 class="section-title">千里系年鉴</h2>
+                <p class="timeline-subtitle">记录每一个群聊诞生时刻</p>
+                <div id="timeline-wrapper" class="timeline-wrapper">
+                    <div class="timeline-line"></div>
+                    <div id="timeline-content"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-about" class="page">
+            <div class="container about-container">
+                <div class="about-hero">
+                    <span class="about-chip">About The Network</span>
+                    <h2 class="section-title">关于 云大千里系</h2>
+                    <p>打游戏的进，聊天的进，搞抽象的进，艾斯比别进</p>
+                </div>
+
+                <div class="about-content">
+                    <div class="about-card">
+                        <h3>千里系由来</h3>
+                        <p>"云大千里系"起源于云南大学 APEX 英雄交流群“云带千里马”。从最初的一个交流群，逐步扩展为覆盖多类型游戏的社群矩阵。</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>🎮 网站定位</h3>
+                        <p>本网站旨在为云大在校学生及毕业生提供一个便捷的千里系群聊交流入口。无论你是想寻找开黑伙伴，还是想了解云大的游戏文化<span class="spoiler-text" title="鼠标移上来查看隐藏内容...">，还是想加入云带最抽象的群聊体系</span>，这里都是你的不二之选。</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>愿景</h3>
+                        <p>千里系多活一年就算成功。</p>
+                    </div>
+                </div>
+
+                <div class="stats-section">
+                    <div class="stat-item">
+                        <span class="stat-number">6+</span>
+                        <span class="stat-label">活跃群聊</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">1000+</span>
+                        <span class="stat-label">群成员</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">4+</span>
+                        <span class="stat-label">游戏类型</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-wrap">
+            <div class="footer-brand">
+                <strong>YDQLX.TOP</strong>
+                <span>云大千里系</span>
+            </div>
+            <p>© 2026 YDQLX.TOP. The Neon Hearth.</p>
+            <p class="footer-icp"><a href="https://beian.miit.gov.cn/" target="_blank">浙ICP备2026027757号-1</a></p>
+        </div>
+    </footer>
+
+    <script src="./js/app.js?v=20260410-16"></script>
+    <script src="./js/comments.js?v=20260410-1"></script>
+</body>
+</html>

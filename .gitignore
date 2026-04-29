@@ -1,0 +1,21 @@
+# Backend & Admin
+admin.html
+api/
+
+# Comments & Rating system
+js/comments.js
+
+# Deployment scripts
+upload_and_restart.ps1
+
+# Dev tools & IDE
+.agents/
+.anima/
+.codebuddy/
+.trae/
+.github/
+skills/
+
+# Notes & context
+重构.txt
+project_context.md
